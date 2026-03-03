@@ -14,7 +14,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool _persistentEnabled = false;
+  bool _persistentEnabled = true;
   bool _alertEnabled = false;
   String _lastAlertLevel = '';
 
@@ -24,12 +24,18 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _loadPrefs();
-    // NotificationService handles listening now
     NotificationService.startListening(
       service: _batteryService,
       isPersistentEnabled: () => _persistentEnabled,
       isAlertEnabled: () => _alertEnabled,
     );
+
+    // force immediate notification on app open
+    _batteryService.temperatureStream.first.then((temp) {
+      if (_persistentEnabled) {
+        NotificationService.showPersistent(temp);
+      }
+    });
   }
 
   Future<void> _loadPrefs() async {
@@ -38,6 +44,12 @@ class _HomePageState extends State<HomePage> {
       _persistentEnabled = prefs.getBool('persistent') ?? false;
       _alertEnabled = prefs.getBool('alert') ?? false;
     });
+
+    NotificationService.startListening(
+      service: _batteryService,
+      isPersistentEnabled: () => _persistentEnabled,
+      isAlertEnabled: () => _alertEnabled,
+    );
 
     if (_persistentEnabled) {
       try {
