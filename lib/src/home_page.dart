@@ -35,9 +35,17 @@ class _HomePageState extends State<HomePage> {
     });
 
     if (_persistentEnabled) {
-      final temp = await _batteryService.temperatureStream.first;
-      NotificationService.showPersistent(temp);
+      try {
+        final temp = await _batteryService.temperatureStream.first.timeout(
+          const Duration(seconds: 3),
+        );
+        NotificationService.showPersistent(temp);
+      } catch (e) {
+        debugPrint('>> failed to restore notification: $e');
+      }
     }
+
+    _listenToTemp();
   }
 
   Future<void> _savePrefs() async {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:suraj_is_hot/src/services/battery_temp_service.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
-const double _tempRising = 32.0;
+const double _tempRising = 20.0;
 const double _tempHot = 36.0;
 const double _tempWorst = 38.0;
 
