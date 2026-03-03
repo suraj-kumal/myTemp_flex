@@ -24,7 +24,12 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _loadPrefs();
-    _listenToTemp();
+    // NotificationService handles listening now
+    NotificationService.startListening(
+      service: _batteryService,
+      isPersistentEnabled: () => _persistentEnabled,
+      isAlertEnabled: () => _alertEnabled,
+    );
   }
 
   Future<void> _loadPrefs() async {
@@ -44,36 +49,12 @@ class _HomePageState extends State<HomePage> {
         debugPrint('>> failed to restore notification: $e');
       }
     }
-
-    _listenToTemp();
   }
 
   Future<void> _savePrefs() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('persistent', _persistentEnabled);
     await prefs.setBool('alert', _alertEnabled);
-  }
-
-  void _listenToTemp() {
-    _batteryService.temperatureStream.listen((temp) {
-      if (_persistentEnabled) {
-        NotificationService.showPersistent(temp);
-      }
-      if (_alertEnabled) {
-        final level = _getLevel(temp);
-        if (level != 'normal' && level != _lastAlertLevel) {
-          _lastAlertLevel = level;
-          NotificationService.showAlert(temp);
-        }
-      }
-    });
-  }
-
-  String _getLevel(double temp) {
-    if (temp >= 38.0) return 'worst';
-    if (temp >= 36.0) return 'hot';
-    if (temp >= 32.0) return 'rising';
-    return 'normal';
   }
 
   @override
@@ -117,9 +98,8 @@ class _HomePageState extends State<HomePage> {
                             await _savePrefs();
                             if (val) {
                               // get real temp immediately on toggle
-                              final temp = await BatteryTempService()
-                                  .temperatureStream
-                                  .first;
+                              final temp =
+                                  await _batteryService.temperatureStream.first;
                               NotificationService.showPersistent(temp);
                             } else {
                               NotificationService.dismissPersistent();

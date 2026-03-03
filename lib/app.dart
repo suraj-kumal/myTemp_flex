@@ -42,17 +42,13 @@ class _AppState extends State<App> {
               brightness: Brightness.light,
               colorScheme: const AppLightColorScheme(),
               radius: BorderRadius.circular(10),
-              textTheme: ShadTextTheme.fromGoogleFont(
-                GoogleFonts.architectsDaughter,
-              ),
+              textTheme: ShadTextTheme(family: 'AdFont'),
             ),
             darkTheme: ShadThemeData(
               brightness: Brightness.dark,
               colorScheme: const AppDarkColorScheme(),
               radius: BorderRadius.circular(10),
-              textTheme: ShadTextTheme.fromGoogleFont(
-                GoogleFonts.architectsDaughter,
-              ),
+              textTheme: ShadTextTheme(family: 'Adfont'),
             ),
             builder: (context, child) {
               final isDark =
